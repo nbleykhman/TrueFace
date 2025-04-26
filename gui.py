@@ -48,7 +48,7 @@ if uploaded_file:
         bottom = min(h, bottom+pad)
         face_img = image.crop((left, top, right, bottom))
 
-        st.image(face_img, caption="Cropped Face", use_column_width=True)
+        st.image(face_img, caption="Cropped Face", use_container_width=True)
 
         # Preprocess
         preprocess = transforms.Compose([
