@@ -7,10 +7,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, ConcatDataset, WeightedRandomSampler
 from torchvision import transforms
-from PIL import Image
 
 from config import (
-    BASE_FACES, BASE_TPDNE,
+    BASE_FACES, BASE_TPDNE, BASE_DALLE,
     device,
     PRETRAIN_EPOCHS, PRETRAIN_BATCH_SIZE, LR_PRETRAIN,
     FINETUNE_EPOCHS, FINETUNE_BATCH_SIZE, LR_FINETUNE,
@@ -80,14 +79,17 @@ def train():
         # build and balance joint dataset
         ds_tp   = FaceDataset(os.path.join(BASE_TPDNE, 'train'), transform=train_tf)
         ds_140k = FaceDataset(os.path.join(BASE_FACES,  'train'), transform=train_tf)
-        train_ds = ConcatDataset([ds_tp, ds_140k])
+        ds_dalle = FaceDataset(os.path.join(BASE_DALLE,  'train'), transform=train_tf)
+        train_ds = ConcatDataset([ds_tp, ds_140k, ds_dalle])
+
         ds_tp_v   = FaceDataset(os.path.join(BASE_TPDNE, 'valid'), transform=val_tf)
         ds_140k_v = FaceDataset(os.path.join(BASE_FACES,  'valid'), transform=val_tf)
-        val_ds    = ConcatDataset([ds_tp_v, ds_140k_v])
+        ds_dalle_v = FaceDataset(os.path.join(BASE_DALLE,  'valid'), transform=val_tf)
+        val_ds    = ConcatDataset([ds_tp_v, ds_140k_v, ds_dalle_v])
 
         # balanced sampling of two domains
-        n1, n2 = len(ds_tp), len(ds_140k)
-        weights = [1/n1]*n1 + [1/n2]*n2
+        n1, n2, n3 = len(ds_tp), len(ds_140k), len(ds_dalle)
+        weights = [1/n1]*n1 + [1/n2]*n2 + [1/n3]*n3
         sampler = WeightedRandomSampler(weights, num_samples=2 * min(n1, n2), replacement=True)
 
         train_loader = DataLoader(train_ds, batch_size=batch_size, sampler=sampler,  num_workers=12, pin_memory=True)

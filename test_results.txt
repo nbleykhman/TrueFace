@@ -1,47 +1,47 @@
 
 === TPDNE Test ===
-AUC: 1.0000    Accuracy: 0.9997
+AUC: 0.9999    Accuracy: 0.9803
 Confusion Matrix:
-[[1499    1]
+[[1441   59]
  [   0 1500]]
 Classification Report:
               precision    recall  f1-score   support
 
-        Real       1.00      1.00      1.00      1500
-        Fake       1.00      1.00      1.00      1500
+        Real       1.00      0.96      0.98      1500
+        Fake       0.96      1.00      0.98      1500
 
-    accuracy                           1.00      3000
-   macro avg       1.00      1.00      1.00      3000
-weighted avg       1.00      1.00      1.00      3000
+    accuracy                           0.98      3000
+   macro avg       0.98      0.98      0.98      3000
+weighted avg       0.98      0.98      0.98      3000
 
 
 === 140K Test ===
-AUC: 1.0000    Accuracy: 0.9990
+AUC: 0.9994    Accuracy: 0.9771
 Confusion Matrix:
-[[9987   13]
- [   6 9994]]
+[[9558  442]
+ [  16 9984]]
 Classification Report:
               precision    recall  f1-score   support
 
-        Real       1.00      1.00      1.00     10000
-        Fake       1.00      1.00      1.00     10000
+        Real       1.00      0.96      0.98     10000
+        Fake       0.96      1.00      0.98     10000
 
-    accuracy                           1.00     20000
-   macro avg       1.00      1.00      1.00     20000
-weighted avg       1.00      1.00      1.00     20000
+    accuracy                           0.98     20000
+   macro avg       0.98      0.98      0.98     20000
+weighted avg       0.98      0.98      0.98     20000
 
 
 === Combined Test ===
-AUC: 1.0000    Accuracy: 0.9991
+AUC: 0.9995    Accuracy: 0.9774
 Confusion Matrix:
-[[11486    14]
- [    6 11494]]
+[[11140   510]
+ [   16 11634]]
 Classification Report:
               precision    recall  f1-score   support
 
-        Real       1.00      1.00      1.00     11500
-        Fake       1.00      1.00      1.00     11500
+        Real       1.00      0.96      0.98     11650
+        Fake       0.96      1.00      0.98     11650
 
-    accuracy                           1.00     23000
-   macro avg       1.00      1.00      1.00     23000
-weighted avg       1.00      1.00      1.00     23000
+    accuracy                           0.98     23300
+   macro avg       0.98      0.98      0.98     23300
+weighted avg       0.98      0.98      0.98     23300

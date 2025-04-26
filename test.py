@@ -12,7 +12,7 @@ from sklearn.metrics import (
     classification_report
 )
 
-from config import BASE_FACES, BASE_TPDNE, device, FINETUNE_BATCH_SIZE, CHECKPOINT
+from config import BASE_FACES, BASE_TPDNE, BASE_DALLE, device, FINETUNE_BATCH_SIZE, CHECKPOINT
 from dataset import FaceDataset
 from model import get_model
 
@@ -74,8 +74,15 @@ if __name__ == "__main__":
                              shuffle=False, num_workers=8, pin_memory=True)
     auc_140k, rpt_140k = evaluate(loader_140k, "140K Test")
 
-    # 3) Combined
-    combined_ds = ConcatDataset([ds_tpdne, ds_140k])
+    # 4) DALL-E only
+    ds_dalle     = FaceDataset(os.path.join(BASE_DALLE, 'test'), transform=test_tf)
+    loader_dalle = DataLoader(ds_dalle,
+                              batch_size=FINETUNE_BATCH_SIZE,
+                              shuffle=False, num_workers=8, pin_memory=True)
+    auc_dalle, rpt_dalle = evaluate(loader_dalle, "DALL-E Test")
+
+    # 4) Combined
+    combined_ds = ConcatDataset([ds_tpdne, ds_140k, ds_dalle])
     loader_comb = DataLoader(combined_ds,
                              batch_size=FINETUNE_BATCH_SIZE,
                              shuffle=False, num_workers=8, pin_memory=True)

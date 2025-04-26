@@ -10,6 +10,7 @@ torch.backends.cudnn.deterministic = False  # allow non-deterministic but faster
 this_dir = os.path.dirname(os.path.abspath(__file__))
 BASE_FACES = os.path.join(this_dir, 'data/140k-real-vs-fake')
 BASE_TPDNE = os.path.join(this_dir, 'data/tpdne')
+BASE_DALLE = os.path.join(this_dir, 'data/dalle')
 
 # Stage-specific hyperparameters
 
