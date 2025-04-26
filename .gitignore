@@ -3,3 +3,4 @@
 best_model.pth
 test_stats.txt
 generate_headshots.py
+checkpoint.pth
