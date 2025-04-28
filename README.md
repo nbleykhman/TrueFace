@@ -109,6 +109,40 @@ By combining staged training, progressive difficulty, domain mixing, and EMA smo
 
 - **DALL-E 2**: AI-generated headshots locally produced using OpenAI's DALL-E 2 API.
 
+```text
+src/
+└── data/
+    ├── 140k-real-vs-fake/
+    │   ├── test/
+    │   │   ├── FAKE/
+    │   │   └── REAL/
+    │   ├── train/
+    │   │   ├── FAKE/
+    │   │   └── REAL/
+    │   └── valid/
+    │       ├── FAKE/
+    │       └── REAL/
+    ├── dalle/
+    │   ├── test/
+    │   │   ├── fake/
+    │   │   └── real/
+    │   ├── train/
+    │   │   ├── fake/
+    │   │   └── real/
+    │   └── valid/
+    │       ├── fake/
+    │       └── real/
+    └── tpdne/
+        ├── test/
+        │   ├── fake/
+        │   └── real/
+        ├── train/
+        │   ├── fake/
+        │   └── real/
+        └── valid/
+            ├── fake/
+            └── real/
+```
 ---
 
 ## Pipeline Improvements (Final Version)
