@@ -65,6 +65,7 @@ if uploaded_file:
         right  = min(image.width,  int(x2 + pad))
         bottom = min(image.height, int(y2 + pad))
         face_img = image.crop((left, top, right, bottom))
+        st.image(face_img, caption="Cropped Face", use_container_width=True)
 
         # preprocess
         preprocess = transforms.Compose([
@@ -85,10 +86,12 @@ if uploaded_file:
         # apply combined threshold
         if fake_prob > threshold:
             label = "FAKE ❌"
+            confidence = fake_prob * 100
         else:
             label = "REAL ✅"
 
         st.subheader(f"Prediction: {label}")
+        st.write(f"Confidence: {confidence:.1f}%")
 
 DEPLOY_URL = "https://trueface-classifier.streamlit.app/"
 qr_img = qrcode.make(DEPLOY_URL)
