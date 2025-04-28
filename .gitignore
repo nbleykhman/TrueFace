@@ -1,6 +1,9 @@
-/__pycache__/
-/data/
+__pycache__/
+data/
 best_model.pth
 test_stats.txt
 generate_headshots.py
-checkpoint.pth
+checkpoint.pth\
+NonPretrained/
+checkpoints/
+/Original Pipeline

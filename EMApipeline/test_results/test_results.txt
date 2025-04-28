@@ -1,0 +1,68 @@
+
+=== TPDNE Test (thr=0.192) ===
+AUC: 0.9996    Accuracy: 0.9910
+Confusion Matrix:
+[[1475   25]
+ [   2 1498]]
+Classification Report:
+              precision    recall  f1-score   support
+
+        Real       1.00      0.98      0.99      1500
+        Fake       0.98      1.00      0.99      1500
+
+    accuracy                           0.99      3000
+   macro avg       0.99      0.99      0.99      3000
+weighted avg       0.99      0.99      0.99      3000
+
+
+
+=== 140K Test (thr=0.192) ===
+AUC: 0.9950    Accuracy: 0.9644
+Confusion Matrix:
+[[9622  378]
+ [ 335 9665]]
+Classification Report:
+              precision    recall  f1-score   support
+
+        Real       0.97      0.96      0.96     10000
+        Fake       0.96      0.97      0.96     10000
+
+    accuracy                           0.96     20000
+   macro avg       0.96      0.96      0.96     20000
+weighted avg       0.96      0.96      0.96     20000
+
+
+
+=== DALL-E Test (thr=0.192) ===
+AUC: 0.9995    Accuracy: 0.9767
+Confusion Matrix:
+[[144   6]
+ [  1 149]]
+Classification Report:
+              precision    recall  f1-score   support
+
+        Real       0.99      0.96      0.98       150
+        Fake       0.96      0.99      0.98       150
+
+    accuracy                           0.98       300
+   macro avg       0.98      0.98      0.98       300
+weighted avg       0.98      0.98      0.98       300
+
+
+
+=== Combined Test (thr=0.192) ===
+AUC: 0.9958    Accuracy: 0.9679
+Confusion Matrix:
+[[11241   409]
+ [  338 11312]]
+Classification Report:
+              precision    recall  f1-score   support
+
+        Real       0.97      0.96      0.97     11650
+        Fake       0.97      0.97      0.97     11650
+
+    accuracy                           0.97     23300
+   macro avg       0.97      0.97      0.97     23300
+weighted avg       0.97      0.97      0.97     23300
+
+
