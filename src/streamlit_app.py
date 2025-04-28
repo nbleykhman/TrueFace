@@ -89,9 +89,10 @@ if uploaded_file:
             confidence = fake_prob * 100
         else:
             label = "REAL ✅"
+            confidence = real_prob * 100
 
         st.subheader(f"Prediction: {label}")
-        st.write(f"Confidence: {confidence:.1f}%")
+        st.write(f"Confidence: {confidence:.1f}%  (threshold={threshold:.3f})")
 
 DEPLOY_URL = "https://trueface-classifier.streamlit.app/"
 qr_img = qrcode.make(DEPLOY_URL)
