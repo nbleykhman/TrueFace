@@ -1,4 +1,4 @@
-# Fake vs Real Face Classifier
+# TrueFace - Fake vs Real Face Classifier
 
 ![Built with PyTorch](https://img.shields.io/badge/Built%20With-PyTorch-red.svg)  ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
