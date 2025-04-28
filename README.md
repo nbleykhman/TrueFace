@@ -29,18 +29,42 @@ These results highlight the effectiveness of progressive augmentation, domain-mi
 
 ```mermaid
 flowchart LR
-    A[Pretraining Phase] -->|140K Real-vs-Fake Dataset<br/>Images resized to 224×224<br/>Warm-up ➔ Strong Augmentations| B[ResNet-50 Backbone]
-    B -->|Progressive Training<br/>Cosine LR Scheduler| C[EMA Model Weights]
-    C -->|Checkpoint Best EMA| D[Finetuning Phase]
-    D -->|TPDNE + DALL-E + 140K<br/>Images at 1024×1024<br/>MixUp Regularization| E[Domain-Balanced Training]
-    E -->|EMA Applied During Finetuning| F[Final Model Evaluation]
+    Start([Start])
 
-    style A fill:#0074D9,stroke:#333,stroke-width:2px,color:#fff
-    style B fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
-    style C fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
-    style D fill:#B10DC9,stroke:#333,stroke-width:2px,color:#fff
-    style E fill:#39CCCC,stroke:#333,stroke-width:2px,color:#fff
-    style F fill:#FF4136,stroke:#333,stroke-width:2px,color:#fff
+    Start --> PretrainingPhase([Pretraining Phase])
+    PretrainingPhase --> LoadAndPrepare([Load 140K Dataset and Resize to 224x224])
+    LoadAndPrepare --> Warmup([Train 5 epochs with light augmentations])
+    Warmup --> StrongAugments([Switch to strong augmentations and continue training])
+    StrongAugments --> TrainingLoop([Training Loop: EMA updates + Cosine LR + Checkpoint])
+    TrainingLoop -->|Early stopping or Max epochs| FinetuningPhase
+
+    FinetuningPhase([Finetuning Phase])
+    FinetuningPhase --> LoadAndPrepareFinetune([Load EMA Model and High-Res Datasets 1024x1024])
+    LoadAndPrepareFinetune --> AugmentAndMixUp([Apply strong augmentations + MixUp])
+    AugmentAndMixUp --> FinetuneLoop([Finetuning Loop: EMA updates + Cosine LR + Checkpoint])
+    FinetuneLoop -->|Early stopping or Max epochs| EvaluationPhase
+
+    EvaluationPhase([Evaluation Phase])
+    EvaluationPhase --> Testing([Evaluate on TPDNE, 140K, DALL-E datasets])
+    Testing --> AggregateResults([Aggregate final metrics])
+    AggregateResults --> End([End])
+
+    %% Color styling
+    style PretrainingPhase fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style LoadAndPrepare fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style Warmup fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style StrongAugments fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style TrainingLoop fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+
+    style FinetuningPhase fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+    style LoadAndPrepareFinetune fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+    style AugmentAndMixUp fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+    style FinetuneLoop fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+
+    style EvaluationPhase fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
+    style Testing fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
+    style AggregateResults fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
+    style End fill:#AAAAAA,stroke:#333,stroke-width:2px,color:#fff
 ```
 
 ---
