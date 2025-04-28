@@ -1,30 +1,162 @@
-# Fake vs Real Face Classifier
+# TrueFace - Fake vs Real Face Classifier
 
-This project implements a two-stage deep-learning pipeline to distinguish AI-generated (“fake”) headshots from authentic (“real”) photographs using a ResNet-50 backbone.
+![Built with PyTorch](https://img.shields.io/badge/Built%20With-PyTorch-red.svg)  ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
-## Motivation & Methodology  
-Modern generative models (StyleGAN, diffusion networks) produce highly realistic faces that are increasingly hard to detect. We leverage transfer learning: first we **pre-train** on a large low-resolution binary dataset (140 K real vs. GAN fakes) to learn general facial features, then **fine-tune** jointly on high-resolution TPDNE diffusion images and held-out 140 K splits. Strong augmentations (random crops, blur, color jitter, erasing) and weight decay enforce robustness against trivial artifact cues.
+---
 
-## Data Collected  
-- **FFHQ**: ∼70 000 high‑quality, aligned real human face images at 1024×1024 used to augment the real class headshots.  
-  Source: [NVlabs FFHQ dataset](https://github.com/NVlabs/ffhq-dataset?tab=readme-ov-file)  
+## Abstract
 
-- **140K real-vs-fake**: 140 000 images at 256×256 (50% real, 50% GAN-generated).  
-  Source: [Kaggle – 140k real and fake faces](https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces)
+This project presents a robust two-stage deep learning system for detecting AI-generated ("fake") headshots versus authentic ("real") human photographs.  
+We leverage transfer learning, training a ResNet-50 backbone first on a large real-vs-fake dataset and then fine-tuning on high-resolution diffusion and GAN-generated faces.  
+Across multiple domains (StyleGAN, Diffusion, DALL-E), the model achieves high generalization, consistently exceeding 0.96 in AUC, precision, recall, and F1-scores.  
+These results demonstrate the effectiveness of combining staged training, targeted augmentations, and regularization techniques for building reliable fake-face detectors applicable to forensic and authenticity-critical tasks.
 
-- **TPDNE**: 20 000 headshots at 1024×1024 Style-GAN generated images.  
-  Source: [Kaggle – ThisPersonDoesNotExist](https://www.kaggle.com/datasets/almightyj/person-face-dataset-thispersondoesnotexist/data) (sourced from https://thispersondoesnotexist.com).  
+---
 
-## Model Architecture Derivation  
-We build on an ImageNet-pretrained ResNet-50, replacing its final layer with a dropout + linear head for two classes. Pre-training warms up broad mid-level features; fine-tuning adapts to domain-specific diffusion and GAN artifacts under a low learning rate and balanced sampling.
+## Pipeline Overview
 
-## Abstract  
-This work presents a robust two‑stage pipeline for detecting AI‑generated versus authentic human headshots, leveraging a ResNet‑50 backbone pretrained on ImageNet. In the first “pretraining” phase, we warm up the network on a large low‑resolution corpus (140 K real-vs‑fake images) using aggressive augmentations—including random resized crops, color jitter, Gaussian blur, and erasing—to force the model to learn mid‑level facial textures rather than trivial artifacts. The second “fine‑tuning” phase combines high‑resolution TPDNE diffusion‑generated portraits with held‑out 140 K samples under a balanced sampling scheme and stronger noise augmentations. We adopt weight decay (1e‑3), a two‑epoch warm‑up scheduler, and a ReduceLROnPlateau policy to stabilize convergence.  
+```mermaid
+flowchart LR
+    Start([Start])
 
-Extensive evaluation demonstrates near‑perfect separation across test splits: on the TPDNE set, the model achieved an AUC of 1.0000 and 99.87 % accuracy; on the 140K set, an AUC of 0.9999 and 99.14 % accuracy; and on the combined split, an AUC of 0.9999 and 99.23 % accuracy. Precision, recall, and F1‑scores consistently exceed 0.98 on both classes, confirming balanced performance. These results indicate the network’s capacity to generalize to diverse synthetic face generation methods (StyleGAN and diffusion) and resist shortcut learning.  
+    Start --> PretrainingPhase([Pretraining Phase])
+    PretrainingPhase --> LoadAndPrepare([Load 140K Dataset and Resize to 224x224])
+    LoadAndPrepare --> Warmup([Train 5 epochs with light augmentations])
+    Warmup --> StrongAugments([Switch to strong augmentations and continue training])
+    StrongAugments --> TrainingLoop([Training Loop: EMA updates + Cosine LR + Checkpoint])
+    TrainingLoop -->|Early stopping or Max epochs| FinetuningPhase
 
-Our methodology demonstrates that judicious use of transfer learning, domain‑balanced sampling, and tailored augmentations can yield a highly accurate, generalizable fake‑face detector suitable for deployment in forensic and media‑authenticity applications.
+    FinetuningPhase([Finetuning Phase])
+    FinetuningPhase --> LoadAndPrepareFinetune([Load EMA Model and High-Res Datasets 1024x1024])
+    LoadAndPrepareFinetune --> AugmentAndMixUp([Apply strong augmentations + MixUp])
+    AugmentAndMixUp --> FinetuneLoop([Finetuning Loop: EMA updates + Cosine LR + Checkpoint])
+    FinetuneLoop -->|Early stopping or Max epochs| EvaluationPhase
+
+    EvaluationPhase([Evaluation Phase])
+    EvaluationPhase --> Testing([Evaluate on TPDNE, 140K, DALL-E datasets])
+    Testing --> AggregateResults([Aggregate final metrics])
+    AggregateResults --> End([End])
+
+    %% Color styling
+    style PretrainingPhase fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style LoadAndPrepare fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style Warmup fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style StrongAugments fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+    style TrainingLoop fill:#4F8EF7,stroke:#333,stroke-width:2px,color:#fff
+
+    style FinetuningPhase fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+    style LoadAndPrepareFinetune fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+    style AugmentAndMixUp fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+    style FinetuneLoop fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+
+    style EvaluationPhase fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
+    style Testing fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
+    style AggregateResults fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
+    style End fill:#AAAAAA,stroke:#333,stroke-width:2px,color:#fff
+```
+
+---
+
+## Table of Contents
+
+- [Motivation & Methodology](#motivation--methodology)
+- [Data Sources](#data-sources)
+- [Pipeline Improvements (Final Version)](#pipeline-improvements-final-version)
+- [Model Architecture](#model-architecture)
+- [Results](#results)
+- [Presentation Slides](#presentation-slides)
+
+---
+
+## Motivation & Methodology
+
+Modern generative models (StyleGAN, Diffusion, DALL-E 2) produce synthetic faces that are increasingly indistinguishable from real photographs, posing challenges for digital media verification.  
+Fake faces can be exploited for misinformation campaigns, identity fraud, or bypassing biometric authentication systems, making robust detection critically important.
+
+To address this, we designed a two-stage deep learning pipeline:
+
+- **Pretraining Phase**:  
+  - **Dataset**: 140K aligned real-vs-fake faces at 512×512 resolution.
+  - **Training**: Images are resized to 224×224.  
+  - **Warm-up**: First 5 epochs use light augmentations (resize, crop, flip) to stabilize feature extraction.
+  - **Progressive Augmentation**: After warm-up, strong augmentations are introduced (RandAugment, color jitter, JPEG compression, Gaussian blur, random erasing, additive Gaussian noise).
+  - **Scheduling**: Cosine annealing with early warm-up ramp.
+  - **EMA**: Exponential Moving Average (decay=0.9999) of model weights is maintained.
+
+- **Finetuning Phase**:  
+  - **Datasets**: High-resolution images from TPDNE (StyleGAN) and DALL-E 2, along with held-out 140K samples.
+  - **Training**: Images are resized to 1024×1024 and subjected to strong augmentations and **MixUp regularization** (α=0.2) to enhance robustness.
+  - **Domain-Balanced Sampling**: Ensures even exposure to different fake generation types.
+  - **EMA Continuation**: EMA weights are continually updated during finetuning.
+
+- **Evaluation**:  
+  Models are evaluated separately on TPDNE, 140K, and DALL-E test splits, reporting AUC, accuracy, precision, recall, and F1 scores.
+
+By combining staged training, progressive difficulty, domain mixing, and EMA smoothing, our approach produces a highly generalizable detector resistant to shortcut learning and domain-specific artifacts.
+
+---
+
+## Data Sources
+
+- **140K Real-vs-Fake**: 140,000 aligned face images at **512×512** resolution (50% real, 50% GAN-generated).  
+  Source: [Kaggle – 140K Real and Fake Faces](https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces)
+
+- **TPDNE (ThisPersonDoesNotExist)**: 20,000 StyleGAN-generated headshots at 1024×1024 resolution.  
+  Source: [Kaggle – TPDNE Dataset](https://www.kaggle.com/datasets/almightyj/person-face-dataset-thispersondoesnotexist/data)
+
+- **FFHQ**: ~70,000 high-quality real faces at 1024×1024 resolution.  
+  Source: [NVIDIA FFHQ Dataset](https://github.com/NVlabs/ffhq-dataset)
+
+- **DALL-E 2**: AI-generated headshots locally produced using OpenAI's DALL-E 2 API.
+
+---
+
+## Pipeline Improvements (Final Version)
+
+- **Pretraining warm-up phase**:  
+  Light augmentations for the first 5 epochs to stabilize feature extraction.
+
+- **Strong augmentations after warm-up**:  
+  Heavy RandAugment operations, color jitter, JPEG noise, Gaussian blur, random erasing, and additive noise.
+
+- **Finetuning with MixUp**:  
+  MixUp (α=0.2) regularization improves robustness over small, high-resolution datasets.
+
+- **Exponential Moving Average (EMA)**:  
+  EMA smoothing (decay=0.9999) applied throughout training to boost generalization.
+
+- **Domain-balanced training**:  
+  Mixed sampling across TPDNE, DALL-E, and 140K datasets during finetuning.
+
+---
+
+## Model Architecture
+
+We build on an ImageNet-pretrained **ResNet-50**, replacing the final fully connected layer with:
+- Dropout  
+- Linear output head (Real vs Fake)
+
+The model focuses on **mid-level textures** and **spatial face structure** rather than low-level generative artifacts.
+
+---
+
+## Results
+
+| Dataset   | AUC    | Accuracy | Precision | Recall | F1-Score |
+|-----------|--------|----------|-----------|--------|----------|
+| TPDNE     | 0.9996 | 99.10%    | 0.99      | 0.99   | 0.99     |
+| 140K      | 0.9950 | 96.44%    | 0.96      | 0.97   | 0.96     |
+| DALL-E 2  | 0.9995 | 97.67%    | 0.96      | 0.99   | 0.98     |
+| Combined  | 0.9958 | 96.79%    | 0.97      | 0.97   | 0.97     |
+
+> **Key takeaway**: Precision, recall, and F1-scores consistently exceed 0.96 across domains.
+
+---
 
 ## Presentation Slides
 
-The slides used to present this project for COMP 560 are located [here](https://docs.google.com/presentation/d/192OlYnVC1KzR5nTisA6muCPcoLXFrG7LRQWAPVUIRsU/edit?usp=sharing).
+The slides used to present this project proposal for COMP 560 are available [here](https://docs.google.com/presentation/d/192OlYnVC1KzR5nTisA6muCPcoLXFrG7LRQWAPVUIRsU/edit?usp=sharing).
+
+(Note: These slides were created during the initial project proposal phase and reflect our first model version, which experienced overfitting issues. The current pipeline described here includes major improvements addressing those challenges.)
+
+---
