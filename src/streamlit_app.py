@@ -58,14 +58,6 @@ if uploaded_file:
     if boxes is None or len(boxes) == 0:
         st.error("No face detected. Please upload a different image.")
     else:
-        x1, y1, x2, y2 = boxes[0]
-        pad = 0.1 * max(x2-x1, y2-y1)
-        left   = max(0, int(x1 - pad))
-        top    = max(0, int(y1 - pad))
-        right  = min(image.width,  int(x2 + pad))
-        bottom = min(image.height, int(y2 + pad))
-        face_img = image.crop((left, top, right, bottom))
-        st.image(face_img, caption="Cropped Face", use_container_width=True)
 
         # preprocess
         preprocess = transforms.Compose([
