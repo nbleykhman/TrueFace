@@ -35,12 +35,12 @@ flowchart LR
     D -->|TPDNE + DALL-E + 140K<br/>Images at 1024×1024<br/>MixUp Regularization| E[Domain-Balanced Training]
     E -->|EMA Applied During Finetuning| F[Final Model Evaluation]
 
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#bfb,stroke:#333,stroke-width:2px
-    style D fill:#ff9,stroke:#333,stroke-width:2px
-    style E fill:#9ff,stroke:#333,stroke-width:2px
-    style F fill:#fc9,stroke:#333,stroke-width:2px
+    style A fill:#0074D9,stroke:#333,stroke-width:2px,color:#fff
+    style B fill:#FF851B,stroke:#333,stroke-width:2px,color:#fff
+    style C fill:#2ECC40,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#B10DC9,stroke:#333,stroke-width:2px,color:#fff
+    style E fill:#39CCCC,stroke:#333,stroke-width:2px,color:#fff
+    style F fill:#FF4136,stroke:#333,stroke-width:2px,color:#fff
 ```
 
 ---
