@@ -94,7 +94,7 @@ if uploaded_file:
         st.subheader(f"Prediction: {label}")
         st.write(f"Confidence: {confidence:.1f}%  (threshold={threshold:.3f})")
 
-DEPLOY_URL = "https://face-classification.streamlit.app"
+DEPLOY_URL = "https://trueface-classifier.streamlit.app/"
 qr_img = qrcode.make(DEPLOY_URL)
 buf = io.BytesIO()
 qr_img.save(buf, format="PNG")
