@@ -6,22 +6,10 @@
 
 ## Abstract
 
-This project implements a robust two-stage deep-learning pipeline for distinguishing AI-generated ("fake") headshots from authentic ("real") human photographs.  
-The approach begins by **pretraining** a ResNet-50 backbone on a 140K real-vs-fake dataset, consisting of aligned face images at 512×512 resolution, resized to 224×224 during training.  
-To stabilize early learning, we apply a **5-epoch warm-up phase** with light augmentations (resize, crop, horizontal flip) before progressively introducing **strong augmentations** such as RandAugment operations, heavy color jitter, random grayscale, JPEG compression artifacts, Gaussian blur, random erasing, and additive Gaussian noise.  
-A **cosine annealing scheduler with warm-up** and weight decay regularization stabilize convergence during this phase.
-
-After pretraining, we **finetune** the model on a mixture of high-resolution synthetic images from TPDNE (StyleGAN) and DALL-E 2 at 1024×1024 resolution. During finetuning, **MixUp augmentation** (α=0.2) is applied to improve regularization over smaller datasets, and **domain-balanced sampling** ensures exposure to all types of fakes.  
-Throughout both stages, an **Exponential Moving Average (EMA)** of model weights (decay=0.9999) is maintained, leading to smoother weight updates and significantly improved validation stability and final performance.
-
-Evaluation across multiple domains demonstrates strong generalization:
-- **TPDNE**: AUC = 0.9996, Accuracy = 99.10%
-- **140K**: AUC = 0.9950, Accuracy = 96.44%
-- **DALL-E 2**: AUC = 0.9995, Accuracy = 97.67%
-- **Combined split**: AUC = 0.9958, Accuracy = 96.79%
-
-Precision, recall, and F1-scores consistently exceed 0.96 across both real and fake classes.  
-These results highlight the effectiveness of progressive augmentation, domain-mixed finetuning, MixUp regularization, and EMA smoothing for building a highly generalizable fake-face detector.
+This project presents a robust two-stage deep learning system for detecting AI-generated ("fake") headshots versus authentic ("real") human photographs.  
+We leverage transfer learning, training a ResNet-50 backbone first on a large real-vs-fake dataset and then fine-tuning on high-resolution diffusion and GAN-generated faces.  
+Across multiple domains (StyleGAN, Diffusion, DALL-E), the model achieves high generalization, consistently exceeding 0.96 in AUC, precision, recall, and F1-scores.  
+These results demonstrate the effectiveness of combining staged training, targeted augmentations, and regularization techniques for building reliable fake-face detectors applicable to forensic and authenticity-critical tasks.
 
 ---
 
@@ -80,10 +68,31 @@ flowchart LR
 
 ---
 
-## Motivation & Methodology  
+## Motivation & Methodology
 
-Modern generative models (e.g., StyleGAN, Diffusion models, DALL-E 2) produce synthetic faces nearly indistinguishable from real photographs.  
-This project develops a **two-stage training pipeline** leveraging transfer learning, strong augmentations, MixUp regularization, and Exponential Moving Average (EMA) smoothing to reliably distinguish real from fake faces.
+Modern generative models (StyleGAN, Diffusion, DALL-E 2) produce synthetic faces that are increasingly indistinguishable from real photographs, posing challenges for digital media verification.  
+Fake faces can be exploited for misinformation campaigns, identity fraud, or bypassing biometric authentication systems, making robust detection critically important.
+
+To address this, we designed a two-stage deep learning pipeline:
+
+- **Pretraining Phase**:  
+  - **Dataset**: 140K aligned real-vs-fake faces at 512×512 resolution.
+  - **Training**: Images are resized to 224×224.  
+  - **Warm-up**: First 5 epochs use light augmentations (resize, crop, flip) to stabilize feature extraction.
+  - **Progressive Augmentation**: After warm-up, strong augmentations are introduced (RandAugment, color jitter, JPEG compression, Gaussian blur, random erasing, additive Gaussian noise).
+  - **Scheduling**: Cosine annealing with early warm-up ramp.
+  - **EMA**: Exponential Moving Average (decay=0.9999) of model weights is maintained.
+
+- **Finetuning Phase**:  
+  - **Datasets**: High-resolution images from TPDNE (StyleGAN) and DALL-E 2, along with held-out 140K samples.
+  - **Training**: Images are resized to 1024×1024 and subjected to strong augmentations and **MixUp regularization** (α=0.2) to enhance robustness.
+  - **Domain-Balanced Sampling**: Ensures even exposure to different fake generation types.
+  - **EMA Continuation**: EMA weights are continually updated during finetuning.
+
+- **Evaluation**:  
+  Models are evaluated separately on TPDNE, 140K, and DALL-E test splits, reporting AUC, accuracy, precision, recall, and F1 scores.
+
+By combining staged training, progressive difficulty, domain mixing, and EMA smoothing, our approach produces a highly generalizable detector resistant to shortcut learning and domain-specific artifacts.
 
 ---
 
@@ -146,6 +155,8 @@ The model focuses on **mid-level textures** and **spatial face structure** rathe
 
 ## Presentation Slides
 
-The slides used to present this project for COMP 560 are available [here](https://docs.google.com/presentation/d/192OlYnVC1KzR5nTisA6muCPcoLXFrG7LRQWAPVUIRsU/edit?usp=sharing).
+The slides used to present this project proposal for COMP 560 are available [here](https://docs.google.com/presentation/d/192OlYnVC1KzR5nTisA6muCPcoLXFrG7LRQWAPVUIRsU/edit?usp=sharing).
+
+(Note: These slides were created during the initial project proposal phase and reflect our first model version, which experienced overfitting issues. The current pipeline described here includes major improvements addressing those challenges.)
 
 ---
