@@ -7,7 +7,7 @@
 ## Abstract
 
 This project presents a robust two-stage deep learning system for detecting AI-generated ("fake") headshots versus authentic ("real") human photographs.  
-We leverage transfer learning, training a ResNet-50 backbone first on a large real-vs-fake dataset and then fine-tuning on high-resolution diffusion and GAN-generated faces.  
+We leverage transfer learning, training a ResNet-50 backbone first on a large real-vs-fake GAN-generated dataset and then fine-tuning on high-resolution diffusion, GAN, and DALL-E generated faces.  
 Across multiple domains (StyleGAN, Diffusion, DALL-E), the model achieves high generalization, consistently exceeding 0.96 in AUC, precision, recall, and F1-scores.  
 These results demonstrate the effectiveness of combining staged training, targeted augmentations, and regularization techniques for building reliable fake-face detectors applicable to forensic and authenticity-critical tasks.
 
