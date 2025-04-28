@@ -8,13 +8,17 @@ from facenet_pytorch import MTCNN
 from torchvision import transforms
 from model import get_model
 from config import device, FINETUNE_EMA_CHECKPOINT, FINETUNE_RESOLUTION
-from train import IMAGENET_MEAN, IMAGENET_STD
 import qrcode
 
 # --- Streamlit layout ---
 st.set_page_config(page_title="TrueFace", layout="centered")
 st.title("TrueFace: Real vs. Fake Face Detector")
 st.write("Upload a clear face image and TrueFace will tell you if it's real or AI-generated.")
+
+# ImageNet normalization constants
+IMAGENET_MEAN = [0.485, 0.456, 0.406]
+IMAGENET_STD  = [0.229, 0.224, 0.225]
+
 
 @st.cache_resource
 def load_threshold():
