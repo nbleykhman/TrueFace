@@ -1,6 +1,8 @@
 # TrueFace - Fake vs Real Face Classifier
 
 ![Built with PyTorch](https://img.shields.io/badge/Built%20With-PyTorch-red.svg)  ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+---
+Link to paper can be found here: [COMP_560_Final_Paper.pdf](https://github.com/user-attachments/files/19956870/COMP_560_Final_Paper.pdf)
 
 ---
 
