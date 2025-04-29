@@ -6,10 +6,20 @@
 
 ## Abstract
 
-This project presents a robust two-stage deep learning system for detecting AI-generated ("fake") headshots versus authentic ("real") human photographs.  
-We leverage transfer learning, training a ResNet-50 backbone first on a large real-vs-fake GAN-generated dataset and then fine-tuning on high-resolution diffusion, GAN, and DALL-E generated faces.  
-Across multiple domains (StyleGAN, Diffusion, DALL-E), the model achieves high generalization, consistently exceeding 0.96 in AUC, precision, recall, and F1-scores.  
-These results demonstrate the effectiveness of combining staged training, targeted augmentations, and regularization techniques for building reliable fake-face detectors applicable to forensic and authenticity-critical tasks.
+Deepfake detection must keep pace with ever-improving generative models that
+produce near-indistinguishable face forgeries. 
+We propose TrueFace, a two-stage
+ResNet-50 framework enhanced by exponential moving average (EMA) weight
+smoothing and domain-aware augmentations. In Stage I, we pretrain at 224×224 on
+real vs. GAN face pairs to capture global inconsistencies. In Stage II, we fine-tune
+at 1024×1024 on a balanced mix of GAN, diffusion, and photo-real images under
+realistic distortions (JPEG compression, blur, noise, and MixUp). Evaluated on
+three unseen domains (StyleGAN2, DALL·E2, FFHQ subset), TrueFace achieves
+up to 99.96% ROC-AUC and 99.10% accuracy. We analyze confusion matrices to
+pinpoint residual weaknesses and outline future work—such as scaling diffusion
+datasets and adapting TrueFace for temporal consistency in video streams, rather
+than just static images.
+
 
 ---
 
