@@ -23,7 +23,7 @@ IMAGENET_STD  = [0.229, 0.224, 0.225]
 @st.cache_resource
 def load_threshold():
     base = os.path.dirname(__file__)
-    thr_path = os.path.join(base, "..", "EMApipeline", "evaluation_results", "combined_threshold.txt")
+    thr_path = os.path.join(base, "..", "EMA-results", "evaluation_results", "combined_threshold.txt")
     try:
         return float(open(thr_path, "r").read().strip())
     except Exception as e:
